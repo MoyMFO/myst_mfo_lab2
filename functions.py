@@ -18,7 +18,7 @@ class OrderBookMeasures:
     This class contains methods of orderbooks measures. Initialized as required to 
     consult the calculation of different measures.
 
-    Parameteters
+    Parameters
     ------------
     data_ob: dict (default: None)
         Orderbook data, it should be a dictionary following next structures:
@@ -30,7 +30,7 @@ class OrderBookMeasures:
 
     Attributes
     ------------
-    Both are hidden attributes since data shouldn't be modified.
+    Both are hidden attributes created from the builder.
 
     ob_ts: list of orderbooks keys.
     l_ts: list of timestamps of orderbooks.
@@ -601,10 +601,49 @@ class PublicTradesMeasures:
         return stats[statistic_measure]
 
 
-class PricingModels(OrderBookMeasures):
+class PricingModelsOB(OrderBookMeasures):
+    """
+    This class contains methods which are pricing models based on orderbooks measures.
+    OrderBookMeasure class inherits methods to this class to leverage from prices calculation
+    like midprice or weighted midprice.
+
+    Parameters
+    ------------
+    data_ob: dict (default: None)
+        Orderbook data, it should be a dictionary following next structures:
+        'timestamp': timestamp object, e.g. pd.to_datetime()
+        'bid_size': bid levels volumes
+        'ask_size': ask levels volumes
+        'bid': bid levels prices
+        'ask': ask levels prices
+
+    Attributes
+    ------------
+    Both are attributes comming from OrderBookMeasures class.
+
+    ob_ts: list of orderbooks keys.
+    l_ts: list of timestamps of orderbooks.
+    """
 
     def apt_model(self, price_type: str, by: str='1T') -> pd.DataFrame:
+        """
+        This method applies the apt model and delivers the count of 
+        how many prices comply with a martingala process by the user
+        desired time. It can be with 'mid_price¿ or 'weighted_midprice'.
 
+        Parameters 
+        ----------
+        Initialized on instance:
+            data_ob: orderbook data.
+            ob_ts: list of timestamps of orderbooks.
+
+        Required on calling:
+            price_type: str. 'mid_price' or 'weighted_midprice'.
+            by: str. Groupying time desired. e.g. '1T' (default) resample by hour.
+        Returns
+        ------
+        Martingala count and portions: DataFrame
+        """
 
         def __martingala_counter(price_array: np.array) ->pd.DataFrame:
             return sum([price_array[i] == price_array[i + 1] 
