@@ -8,6 +8,7 @@
 # -- repository: YOUR REPOSITORY URL                                                                     -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
+
 import numpy as np
 import pandas as pd
 
@@ -31,8 +32,8 @@ class OrderBookMeasures:
     ------------
     Both are hidden attributes since data shouldn't be modified.
 
-    __ob_ts: list of orderbooks keys.
-    __l_ts: list of timestamps of orderbooks.
+    ob_ts: list of orderbooks keys.
+    l_ts: list of timestamps of orderbooks.
     """
 
     def __init__(self, data_ob: dict) -> dict:
@@ -40,12 +41,12 @@ class OrderBookMeasures:
 
     # Hidden Attributes
     @property
-    def __ob_ts(self) -> list:
+    def ob_ts(self) -> list:
         return list(self.data_ob.keys())
 
     @property
-    def __l_ts(self) -> list:
-        return [pd.to_datetime(i_ts) for i_ts in self.__ob_ts]
+    def l_ts(self) -> list:
+        return [pd.to_datetime(i_ts) for i_ts in self.ob_ts]
 
     # -- Median Time of OrderBook update -- #
     def median_time_ob(self) -> float:
@@ -55,13 +56,13 @@ class OrderBookMeasures:
         Parameters
         ----------
         Initialized on instance:
-            __l_ts: list of timestamps of orderbooks.
+            l_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Medain time orderbook: float
         """
-        ob_m1 = np.median([self.__l_ts[n_ts + 1] - self.__l_ts[n_ts] for n_ts in range(0, len(self.__l_ts)-1)]).total_seconds() * 1000
+        ob_m1 = np.median([self.l_ts[n_ts + 1] - self.l_ts[n_ts] for n_ts in range(0, len(self.l_ts)-1)]).total_seconds() * 1000
         return ob_m1
 
     # -- Spread -- #
@@ -73,15 +74,15 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Spread: DataFrame
         """
-        ob_m2 = pd.DataFrame({'Spread':[(self.data_ob[self.__ob_ts[i_ts]]['ask'][0] 
-                              - self.data_ob[self.__ob_ts[i_ts]]['bid'][0]) 
-                              for i_ts in range(0, len(self.__ob_ts))]})
+        ob_m2 = pd.DataFrame({'Spread':[(self.data_ob[self.ob_ts[i_ts]]['ask'][0] 
+                              - self.data_ob[self.ob_ts[i_ts]]['bid'][0]) 
+                              for i_ts in range(0, len(self.ob_ts))]})
         return ob_m2
 
     # -- Midprice -- #
@@ -93,15 +94,15 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Mid price: DataFrame
         """
-        ob_m3 = [(self.data_ob[self.__ob_ts[i_ts]]['ask'][0] 
-                + self.data_ob[self.__ob_ts[i_ts]]['bid'][0])*0.5 
-                for i_ts in range(0, len(self.__ob_ts))]
+        ob_m3 = [(self.data_ob[self.ob_ts[i_ts]]['ask'][0] 
+                + self.data_ob[self.ob_ts[i_ts]]['bid'][0])*0.5 
+                for i_ts in range(0, len(self.ob_ts))]
         return pd.DataFrame({'mid_price':ob_m3})
 
     # -- No. Price Levels -- #
@@ -113,12 +114,12 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         Price leves: DataFrame
         """
-        ob_m4 = [self.data_ob[i_ts].shape[0] for i_ts in self.__ob_ts]
+        ob_m4 = [self.data_ob[i_ts].shape[0] for i_ts in self.ob_ts]
         return pd.DataFrame({'price_levels':ob_m4})
 
      # -- Bid_Volume -- #
@@ -130,14 +131,14 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Bid volume: DataFrame
         """
         ob_m5 = [np.round(self.data_ob[i_ts]['bid_size'].sum(), 6) 
-                 for i_ts in self.__ob_ts]
+                 for i_ts in self.ob_ts]
         return pd.DataFrame({'bid_volume':ob_m5})
 
      # -- Ask_Volume -- #
@@ -149,14 +150,14 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Ask volume: DataFrame
         """
         ob_m6 = [np.round(self.data_ob[i_ts]['ask_size'].sum(), 6) 
-                for i_ts in self.__ob_ts]
+                for i_ts in self.ob_ts]
         return pd.DataFrame({'ask_volume':ob_m6})
 
      # -- Total_Volume -- #
@@ -168,14 +169,14 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Returns
         ------
         Total volume: DataFrame
         """
         ob_m7 = [np.round(self.data_ob[i_ts]['bid_size'].sum() 
-                 + self.data_ob[i_ts]['ask_size'].sum(), 6) for i_ts in self.__ob_ts]
+                 + self.data_ob[i_ts]['ask_size'].sum(), 6) for i_ts in self.ob_ts]
         return pd.DataFrame({'total_volume':ob_m7})
 
     # -- OrderBook Imbalance (v: volume, d: depth) -- #
@@ -187,7 +188,7 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Required on calling:
             Depth: str or int. 'full' for the complete orderbook depth or int opcional depth.
@@ -198,10 +199,10 @@ class OrderBookMeasures:
         def __obimb(v, d): return np.sum(v.iloc[:d,0])/np.sum([v.iloc[:d,0], v.iloc[:d,1]]) 
         if depth == 'full':
             ob_m8 = [__obimb(self.data_ob[i_ts][['bid_size','ask_size']],
-                    len(self.data_ob[i_ts])) for i_ts in self.__ob_ts]
+                    len(self.data_ob[i_ts])) for i_ts in self.ob_ts]
         else:
             ob_m8 = [__obimb(self.data_ob[i_ts][['bid_size','ask_size']], 
-            depth) for i_ts in self.__ob_ts]
+            depth) for i_ts in self.ob_ts]
         return pd.DataFrame({'ob_imbalance': ob_m8})
 
      # -- wighted-Midprice (p: price, v: volume) -- A option#
@@ -220,7 +221,7 @@ class OrderBookMeasures:
         """
         ob_m8 = self.ob_imbalance(depth=depth)['ob_imbalance'].values.tolist()
         ob_m3 = self.mid_price()['mid_price'].values.tolist()
-        ob_m9 = [ob_m8[i_ts] * ob_m3[i_ts] for i_ts in range(0, len(self.__ob_ts))]
+        ob_m9 = [ob_m8[i_ts] * ob_m3[i_ts] for i_ts in range(0, len(self.ob_ts))]
         return pd.DataFrame({'wighted_midprice':ob_m9})
 
     # -- wighted-Midprice (p: price, v: volume) -- B option#
@@ -239,7 +240,7 @@ class OrderBookMeasures:
         """
         def __w_midprice(p, v): return ((v.iloc[0,1]/np.sum([v.iloc[0,0], v.iloc[0,1]]))*p.iloc[0,0] 
                                        + (v.iloc[0,0]/np.sum([v.iloc[0,0], v.iloc[0,1]]))*p.iloc[0,1])
-        ob_m9  = [__w_midprice(self.data_ob[i_ts][['bid','ask']], self.data_ob[i_ts][['bid_size', 'ask_size']]) for i_ts in self.__ob_ts]
+        ob_m9  = [__w_midprice(self.data_ob[i_ts][['bid','ask']], self.data_ob[i_ts][['bid_size', 'ask_size']]) for i_ts in self.ob_ts]
         return pd.DataFrame({'weighted_midprice':ob_m9})
 
     # -- VWAP (Volume-Weighted Average Price) (p: price, v: volume, d:depth) -- #
@@ -251,7 +252,7 @@ class OrderBookMeasures:
         ----------
         Initialized on instance:
             data_ob: orderbook data.
-            __ob_ts: list of timestamps of orderbooks.
+            ob_ts: list of timestamps of orderbooks.
 
         Required on calling:
             Depth: str or int. 'full' for the complete orderbook depth or int opcional depth.
@@ -264,10 +265,10 @@ class OrderBookMeasures:
                                                 / np.sum(v.iloc[:d,0] + v.iloc[:d,1]))
         if depth == 'full':
             ob_m10 = [__vwap_calculation(self.data_ob[i_ts][['bid', 'ask']], self.data_ob[i_ts][['bid_size', 'ask_size']], 
-                 len(self.data_ob[i_ts])) for i_ts in self.__ob_ts]
+                 len(self.data_ob[i_ts])) for i_ts in self.ob_ts]
         else:
             ob_m10 = [__vwap_calculation(self.data_ob[i_ts][['bid', 'ask']], self.data_ob[i_ts][['bid_size', 'ask_size']], 
-                     depth) for i_ts in self.__ob_ts]
+                     depth) for i_ts in self.ob_ts]
         return pd.DataFrame({'vwap':ob_m10})
 
     def ohclvv(self, by: str) -> pd.DataFrame:
@@ -282,7 +283,7 @@ class OrderBookMeasures:
         ------
         OHCLVV: DataFrame
         """
-        df_mid_price = pd.DataFrame({'mid price':self.mid_price()['mid_price'].values.tolist()}, index=self.__l_ts)
+        df_mid_price = pd.DataFrame({'mid price':self.mid_price()['mid_price'].values.tolist()}, index=self.l_ts)
         ohclvv = pd.DataFrame({'Open price': df_mid_price['mid price'].resample(by, closed='left').first(), 
                                'High price': df_mid_price['mid price'].resample(by, closed='left').max(), 
                                'Low price': df_mid_price['mid price'].resample(by, closed='left').min(),
@@ -313,10 +314,10 @@ class OrderBookMeasures:
 
     def data_to_plot(self) -> pd.DataFrame:
       
-        data_to_plot = pd.DataFrame({'ask':[self.data_ob[self.__ob_ts[i_ts]]['ask'][0] for i_ts in range(0, 7)],
-                                     'bid': [self.data_ob[self.__ob_ts[i_ts]]['bid'][0] for i_ts in range(0, 7)],
-                                     'ask_size': [self.data_ob[self.__ob_ts[i_ts]]['ask_size'][0] for i_ts in range(0, 7)],
-                                     'bid_size': [self.data_ob[self.__ob_ts[i_ts]]['bid_size'][0] for i_ts in range(0, 7)]})
+        data_to_plot = pd.DataFrame({'ask':[self.data_ob[self.ob_ts[i_ts]]['ask'][0] for i_ts in range(0, 7)],
+                                     'bid': [self.data_ob[self.ob_ts[i_ts]]['bid'][0] for i_ts in range(0, 7)],
+                                     'ask_size': [self.data_ob[self.ob_ts[i_ts]]['ask_size'][0] for i_ts in range(0, 7)],
+                                     'bid_size': [self.data_ob[self.ob_ts[i_ts]]['bid_size'][0] for i_ts in range(0, 7)]})
         return data_to_plot
 
 
@@ -600,5 +601,30 @@ class PublicTradesMeasures:
         return stats[statistic_measure]
 
 
-         
-    
+class PricingModels(OrderBookMeasures):
+
+    def apt_model(self, price_type: str, by: str='1T') -> pd.DataFrame:
+
+
+        def __martingala_counter(price_array: np.array) ->pd.DataFrame:
+            return sum([price_array[i] == price_array[i + 1] 
+                   for i in range(0, len(price_array) - 1)])
+        
+        #chose_price
+        measure_price = {'mid_price': self.mid_price(), 'weighted_midprice':self.w_midprice_b()}
+
+        with_selected_price = measure_price[price_type]
+        with_selected_price.index = self.l_ts
+        with_selected_price = with_selected_price[price_type].resample(by)
+
+        selected_price_result = {
+            'interval': np.arange(0, len(with_selected_price.count())),
+            'total': with_selected_price.count(),
+            'e1_count': with_selected_price.apply(__martingala_counter),
+            'e1_portion': with_selected_price.apply(__martingala_counter)/with_selected_price.count(),
+            'e2_count': with_selected_price.count() - with_selected_price.apply(__martingala_counter),
+            'e2_portion': ((with_selected_price.count() - with_selected_price.apply(__martingala_counter))
+                          /with_selected_price.count())
+        }
+
+        return pd.DataFrame(selected_price_result)
