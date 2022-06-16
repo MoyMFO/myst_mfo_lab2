@@ -14,9 +14,10 @@ import pandas as pd
 import data as dt
 from data import DataPreparation
 from functions import OrderBookMeasures, PricingModelsOB
+from visualizations import PlotsModelsOB
 
 data = DataPreparation()
-
+plot = PlotsModelsOB()
 order_book_data = data.order_books_json_transformation("files/orderbooks_05jul21.json")
 order_book_measure = OrderBookMeasures(order_book_data)
 model = PricingModelsOB(order_book_data)
@@ -27,6 +28,8 @@ print(model.apt_model('mid_price', by='1T'))
 # Martingala Exploration with weighted mid price method
 print(model.apt_model('weighted_midprice', by='1T'))
 
+plot.plot_apt_model_count(model.apt_model('mid_price', by='1T'))
+plot.plot_apt_model_portion(model.apt_model('mid_price', by='1T'))
 # -- Calcular el midprice
 
 # mid_price = order_book_measure.mid_price()

@@ -654,16 +654,17 @@ class PricingModelsOB(OrderBookMeasures):
 
         with_selected_price = measure_price[price_type]
         with_selected_price.index = self.l_ts
-        with_selected_price = with_selected_price[price_type].resample(by)
+        with_selected_price = with_selected_price[price_type].resample(by, closed='right')
+        total = (with_selected_price.count()-1)
+        e1_count = with_selected_price.apply(__martingala_counter)
 
         selected_price_result = {
-            'interval': np.arange(0, len(with_selected_price.count())),
-            'total': with_selected_price.count(),
-            'e1_count': with_selected_price.apply(__martingala_counter),
-            'e1_portion': with_selected_price.apply(__martingala_counter)/with_selected_price.count(),
-            'e2_count': with_selected_price.count() - with_selected_price.apply(__martingala_counter),
-            'e2_portion': ((with_selected_price.count() - with_selected_price.apply(__martingala_counter))
-                          /with_selected_price.count())
+            'interval': np.arange(0, len(total+1)),
+            'total': total,
+            'e1_count':e1_count ,
+            'e1_portion': e1_count/total,
+            'e2_count': total - e1_count,
+            'e2_portion': ((total - e1_count)/total)
         }
 
         return pd.DataFrame(selected_price_result)
