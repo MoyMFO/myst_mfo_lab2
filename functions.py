@@ -8,7 +8,6 @@
 # -- repository: YOUR REPOSITORY URL                                                                     -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
-
 import numpy as np
 import pandas as pd
 
@@ -104,6 +103,42 @@ class OrderBookMeasures:
                 + self.data_ob[self.ob_ts[i_ts]]['bid'][0])*0.5 
                 for i_ts in range(0, len(self.ob_ts))]
         return pd.DataFrame({'mid_price':ob_m3})
+    
+    def bid_price(self) -> pd.DataFrame:
+        """
+        This method caculates the mid price of top of the orderbook.
+
+        Parameters
+        ----------
+        Initialized on instance:
+            data_ob: orderbook data.
+            ob_ts: list of timestamps of orderbooks.
+
+        Returns
+        ------
+        Bid price: DataFrame
+        """
+        ob_m3 = [self.data_ob[self.ob_ts[i_ts]]['bid'][0] for i_ts in range(0, len(self.ob_ts))]
+        return pd.DataFrame({'bid_price':ob_m3})
+
+    def ask_price(self) -> pd.DataFrame:
+        """
+        This method caculates the mid price of top of the orderbook.
+
+        Parameters
+        ----------
+        Initialized on instance:
+            data_ob: orderbook data.
+            ob_ts: list of timestamps of orderbooks.
+
+        Returns
+        ------
+        Ask price: DataFrame
+        """
+        ob_m3 = [self.data_ob[self.ob_ts[i_ts]]['ask'][0] for i_ts in range(0, len(self.ob_ts))]
+        return pd.DataFrame({'ask_price':ob_m3})
+
+
 
     # -- No. Price Levels -- #
     def price_levels(self) -> pd.DataFrame:
@@ -642,7 +677,7 @@ class PricingModelsOB(OrderBookMeasures):
             by: str. Groupying time desired. e.g. '1T' (default) resample by hour.
         Returns
         ------
-        Martingala count and portions: DataFrame
+        Martingala count and percentages: DataFrame
         """
 
         def __martingala_counter(price_array: np.array) ->pd.DataFrame:
@@ -662,9 +697,33 @@ class PricingModelsOB(OrderBookMeasures):
             'interval': np.arange(0, len(total+1)),
             'total': total,
             'e1_count':e1_count ,
-            'e1_portion': e1_count/total,
+            'e1_percentage': e1_count/total,
             'e2_count': total - e1_count,
-            'e2_portion': ((total - e1_count)/total)
+            'e2_percentage': ((total - e1_count)/total)
         }
 
         return pd.DataFrame(selected_price_result)
+
+
+    def roll_model(self) -> pd.DataFrame:
+
+        delta_pt = self.mid_price().diff(1).dropna()
+        delta_pt_minius_1 = self.mid_price().shift(-1).diff(1).dropna()
+
+        df_deltas = pd.DataFrame({'delta_pt': delta_pt['mid_price'].iloc[:-1],
+                                'delta_pt_minus_1': delta_pt_minius_1['mid_price']})
+
+        gamma_1 = df_deltas.cov().iloc[0,1]
+
+        c = np.sqrt(-gamma_1)
+
+        bid_calculated = self.mid_price() + (-1)*c
+        ask_calculated =  self.mid_price() + (1)*c
+
+        results = {
+            'mid_price': self.mid_price(), 'bid': self.bid_price(),
+            'ask':       self.ask_price(), 'bid_calculated': bid_calculated['mid_price'],
+            'ask_calculated': ask_calculated['mid_price']
+        }
+
+        return pd.DataFrame({results['ask'],results['bid']})
