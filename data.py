@@ -1,11 +1,14 @@
-
 """
 # -- --------------------------------------------------------------------------------------------------- -- #
-# -- project: A SHORT DESCRIPTION OF THE PROJECT                                                         -- #
+# project: This project has been created to show the operation of two price explanatory models 
+# in the microstructure. On the one hand, the APT model that analyzes prices as a martingale
+# stochastic process. On the other hand, the Roll model that aims to calculate the theoretical spread
+# from transaction price data. Through considering the order book as an object that contains the data 
+# on which the model is based,the pertinent classes were made to calculate and plot the models.          -- #
 # -- script: data.py : python script for data collection                                                 -- #
-# -- author: YOUR GITHUB USER NAME                                                                       -- #
-# -- license: THE LICENSE TYPE AS STATED IN THE REPOSITORY                                               -- #
-# -- repository: YOUR REPOSITORY URL                                                                     -- #
+# -- author: MoyMFO                                                                                      -- #
+# -- license: GNU General Public License v3.0                                                            -- #
+# -- repository: https://github.com/MoyMFO/myst_mfo_lab2                                                 -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
 import pandas as pd

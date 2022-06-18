@@ -1,11 +1,14 @@
-
 """
 # -- --------------------------------------------------------------------------------------------------- -- #
-# -- project: A SHORT DESCRIPTION OF THE PROJECT                                                         -- #
-# -- script: functions.py : python script with general functions                                         -- #
-# -- author: YOUR GITHUB USER NAME                                                                       -- #
-# -- license: THE LICENSE TYPE AS STATED IN THE REPOSITORY                                               -- #
-# -- repository: YOUR REPOSITORY URL                                                                     -- #
+# project: This project has been created to show the operation of two price explanatory models 
+# in the microstructure. On the one hand, the APT model that analyzes prices as a martingale
+# stochastic process. On the other hand, the Roll model that aims to calculate the theoretical spread
+# from transaction price data. Through considering the order book as an object that contains the data 
+# on which the model is based,the pertinent classes were made to calculate and plot the models.          -- #
+# -- script: data.py : python script for data collection                                                 -- #
+# -- author: MoyMFO                                                                                      -- #
+# -- license: GNU General Public License v3.0                                                            -- #
+# -- repository: https://github.com/MoyMFO/myst_mfo_lab2                                                 -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
 import numpy as np
@@ -706,6 +709,24 @@ class PricingModelsOB(OrderBookMeasures):
 
 
     def roll_model(self) -> pd.DataFrame:
+        """
+        This method applies the Roll model and delivers the a 
+        dataframe that contains the actual bid-ask as well as
+        theoretical bid-ask calculated with the model.
+
+        Parameters 
+        ----------
+        Initialized on instance:
+            data_ob: orderbook data.
+            ob_ts: list of timestamps of orderbooks.
+
+        Required on calling:
+            No required.
+
+        Returns
+        ------
+        bid and ask theorical prices: DataFrame
+        """
 
         delta_pt = self.mid_price().diff(1).dropna()
         delta_pt_minius_1 = self.mid_price().shift(-1).diff(1).dropna()
@@ -721,9 +742,13 @@ class PricingModelsOB(OrderBookMeasures):
         ask_calculated =  self.mid_price() + (1)*c
 
         results = {
-            'mid_price': self.mid_price(), 'bid': self.bid_price(),
-            'ask':       self.ask_price(), 'bid_calculated': bid_calculated['mid_price'],
-            'ask_calculated': ask_calculated['mid_price']
+            'mid_price': self.mid_price().values.flatten(),
+            'bid': self.bid_price().values.flatten(),
+            'bid_calculated': bid_calculated['mid_price'].values.flatten(), 
+            'bid_delta': (self.bid_price().values.flatten() - bid_calculated['mid_price'].values.flatten()),
+            'ask': self.ask_price().values.flatten(),
+            'ask_calculated': ask_calculated['mid_price'].values.flatten(),
+            'ask_delta': (self.ask_price().values.flatten() - ask_calculated['mid_price'].values.flatten())
         }
 
-        return pd.DataFrame({results['ask'],results['bid']})
+        return pd.DataFrame(results, index=self.l_ts)

@@ -1,6 +1,5 @@
 ## Description
-*Insert here a brief description of the project, including, purpose, technologies used and context 
-where it was created.*
+*This project has been created to show the operation of two price explanatory models in the microstructure. On the one hand, the APT model that analyzes prices as a martingale stochastic process. On the other hand, the Roll model that aims to calculate the theoretical spread from transaction price data. Through considering the order book as an object that contains the data on which the model is based, the pertinent classes were made to calculate and plot the models.*
 
 ## Install dependencies
 
@@ -12,10 +11,30 @@ Or you can manually install one by one using the name and version in the file.
 
 ## Funcionalities
 
-*Add here examples of core functionalities for the project in this repository.*
+This project is about the testing and showcase of two pricing models for microstructure.
+There is a class for pricing models available which contains methods for the APT and ROLL models calculations.
+
+### Data to be used: 
+
+A JSON files with orderbooks with timestamp, bid, and ask.
+
+### Instances: Data preparation
+data = DataPreparation()
+order_books_data = data.order_books_json_transformation('orderbooks_05jul21.json')
+### Instances: Models
+model = PricingModelsOB(order_books_data)
+### Call models
+model.apt_model('mid_price', by='1T')
+model.apt_model('weighted_midprice', by='1T')
+model.roll_model()
+
+
+### IMPORTANT:
+main.py only shows the calling of models as a testing/proof of working.
+Find detials and plots in Jupyter notebook.
 
 ## Author
-*Add Name and a brief description on who you are.*
+Moises Flores Ortiz. Student of financial engineering about to graduate.
 
 ## License
 **GNU General Public License v3.0** 
@@ -26,4 +45,4 @@ works using a licensed work, under the same license. Copyright and license notic
 must be preserved. Contributors provide an express grant of patent rights.*
 
 ## Contact
-*For more information in reggards of this repo, please contact name@email.com*
+*For more information in reggards of this repo, please contact if722183@iteso.mx*

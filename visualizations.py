@@ -1,38 +1,33 @@
-
 """
 # -- --------------------------------------------------------------------------------------------------- -- #
-# -- project: A SHORT DESCRIPTION OF THE PROJECT                                                         -- #
-# -- script: visualizations.py : python script with data visualization functions                         -- #
-# -- author: YOUR GITHUB USER NAME                                                                       -- #
-# -- license: THE LICENSE TYPE AS STATED IN THE REPOSITORY                                               -- #
-# -- repository: YOUR REPOSITORY URL                                                                     -- #
+# project: This project has been created to show the operation of two price explanatory models 
+# in the microstructure. On the one hand, the APT model that analyzes prices as a martingale
+# stochastic process. On the other hand, the Roll model that aims to calculate the theoretical spread
+# from transaction price data. Through considering the order book as an object that contains the data 
+# on which the model is based,the pertinent classes were made to calculate and plot the models.          -- #
+# -- script: data.py : python script for data collection                                                 -- #
+# -- author: MoyMFO                                                                                      -- #
+# -- license: GNU General Public License v3.0                                                            -- #
+# -- repository: https://github.com/MoyMFO/myst_mfo_lab2                                                 -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 
 class PlotsModelsOB:
     """
-    This class contains methods to plot the apt model.
-    OrderBookMeasure class inherits methods to this class to leverage from prices calculation
-    like midprice or weighted midprice.
+    This class contains methods to plot the apt model and the Roll model.
+    It contains two methods one for each model, those only requires the
+    intended data and the title of what is being plotted.
 
     Parameters
     ------------
-    data_ob: dict (default: None)
-        Orderbook data, it should be a dictionary following next structures:
-        'timestamp': timestamp object, e.g. pd.to_datetime()
-        'bid_size': bid levels volumes
-        'ask_size': ask levels volumes
-        'bid': bid levels prices
-        'ask': ask levels prices
+    Not required to initialize the class.
 
     Attributes
     ------------
-    Both are attributes comming from OrderBookMeasures class.
-
-    ob_ts: list of orderbooks keys.
-    l_ts: list of timestamps of orderbooks.
+    Not specific in this class.
     """
 
     @staticmethod
@@ -65,10 +60,12 @@ class PlotsModelsOB:
 
         # Title
         fig.update_layout(barmode='stack')
-        fig.update_layout(height=600, width=600, title_text=f"{price_type}: Count of Martingala proces")
+        fig.update_layout(title_text=f"{price_type}: Count of Martingala process",
+                          legend=dict(orientation="h"))
         # Axis layout
         fig.update_xaxes(title_text="<b>Minute Bucket</b>")
         fig.update_yaxes(title_text="<b>Count of Martingala Process</b>")
+
         return fig.show()
 
     @staticmethod
@@ -101,9 +98,57 @@ class PlotsModelsOB:
 
         # Title
         fig.update_layout(barmode='stack')
-        fig.update_layout(height=600, width=600, title_text=f"{price_type}: Propercentage of Martingala proces")
+        fig.update_layout(title_text=f"{price_type}: Propercentage of Martingala process",
+                          legend=dict(orientation="h"))
 
         # Axis layout
         fig.update_xaxes(title_text="<b>Minute Bucket</b>")
-        fig.update_yaxes(title_text="<b>Propercentage of Martingala Process</b>")
+        fig.update_yaxes(title_text="<b>Percentage of Martingala Process</b>")
+
+        return fig.show()
+
+    @staticmethod
+    def plot_roll_model(data: pd.DataFrame) -> go.Figure:
+        
+        """
+        This method plots the calculation of bid and ask  with Roll model.
+
+        Parameters 
+        ----------
+        Required on calling:
+            data: DataFrame with columns ['bid_calculated','bid','ask_calculated','ask'].
+        Returns
+        ------
+        Plots of all columns as subplots: Figure
+        """
+
+        fig = make_subplots(
+            rows=2, cols=2,
+            subplot_titles=("Bid with Roll model", "Actual Bid",
+                            "Ask with Roll model", "Actual ask"))
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['bid_calculated'],
+                   line=dict(color='magenta', width=1), name='bid calculated'),
+                    row=1, col=1)
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['bid'], 
+                   line=dict(color='royalblue', width=1), name='actual bid'),
+                    row=1, col=2)
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['ask_calculated'],
+                   line=dict(color='brown', width=1), name='ask calculated'),
+                    row=2, col=1)
+
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['ask'],
+                   line=dict(color='red', width=1), name='actual ask'),
+                    row=2, col=2)
+
+        # Title
+        fig.update_layout(height=600, width=800, title_text=f"Bid-Ask with Roll model")
+
+        # Axis layout
+        fig.update_xaxes(title_text="<b>Time</b>")
+        fig.update_yaxes(title_text="<b>$</b>")
+
         return fig.show()
