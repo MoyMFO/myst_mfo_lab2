@@ -11,10 +11,6 @@
 # -- repository: https://github.com/MoyMFO/myst_mfo_lab2                                                 -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
-
-import numpy as np
-import pandas as pd
-import data as dt
 from data import DataPreparation
 from functions import OrderBookMeasures, PricingModelsOB
 from visualizations import PlotsModelsOB
@@ -37,5 +33,7 @@ plot.plot_apt_model_percentage(model.apt_model('mid_price', by='1T'), ' weighted
 print(model.roll_model())
 # Roll model plots
 plot.plot_roll_model(model.roll_model())
+# Roll model Spread
+plot.plot_spread_comparison(model.roll_model()) 
 
 

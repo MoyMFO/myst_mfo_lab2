@@ -48,14 +48,14 @@ class PlotsModelsOB:
         """
 
         fig = go.Figure(data=[
-        go.Bar(name='e1 count', x=data['interval'], y=data['e1_count']),
-        go.Bar(name='e2 count', x=data['interval'], y=data['e2_count'])
+        go.Bar(name='e1 count', x=data['interval'], y=data['e1_count'], marker_color='navy'),
+        go.Bar(name='e2 count', x=data['interval'], y=data['e2_count'], marker_color='goldenrod')
         ])
 
         # Size
         fig.update_layout(
         autosize=False,
-        width=1000,
+        width=900,
         height=800)
 
         # Title
@@ -86,14 +86,14 @@ class PlotsModelsOB:
         """
 
         fig = go.Figure(data=[
-        go.Bar(name='e1 count', x=data['interval'], y=data['e1_percentage']),
-        go.Bar(name='e2 count', x=data['interval'], y=data['e2_percentage'])
+        go.Bar(name='e1 count', x=data['interval'], y=data['e1_percentage'], marker_color='cadetblue'),
+        go.Bar(name='e2 count', x=data['interval'], y=data['e2_percentage'], marker_color='firebrick')
         ])
 
         # Size
         fig.update_layout(
         autosize=False,
-        width=1000,
+        width=900,
         height=800)
 
         # Title
@@ -145,10 +145,44 @@ class PlotsModelsOB:
                     row=2, col=2)
 
         # Title
-        fig.update_layout(height=600, width=800, title_text=f"Bid-Ask with Roll model")
+        fig.update_layout(height=800, width=980, title_text=f"Bid-Ask with Roll model",
+                          legend=dict(orientation="h"))
 
         # Axis layout
         fig.update_xaxes(title_text="<b>Time</b>")
         fig.update_yaxes(title_text="<b>$</b>")
 
         return fig.show()
+    
+    @staticmethod
+    def plot_spread_comparison(data: pd.DataFrame) -> go.Figure:
+        """
+        This method plots the calculated spread and the actual spread.
+
+        Parameters 
+        ----------
+        Required on calling:
+            data: DataFrame with columns ['spread_calculated',''spread'].
+        Returns
+        ------
+        Plots of comparison b/w spreads: Figure
+        """
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['spread_calculated'],
+                        line=dict(color='blue', width=2), name='spread calculated'))
+
+        fig.add_trace(go.Scatter(x=data.index, y=data['spread'],
+                        line=dict(color='red', width=2), name='spread'))                
+
+        # Title
+        fig.update_layout(height=800, width=980, title_text=f"Spread Calculated vs Actual Spread",
+                        legend=dict(orientation="h"))
+
+        # Axis layout
+        fig.update_xaxes(title_text="<b>Time</b>")
+        fig.update_yaxes(title_text="<b>$</b>")
+
+        return fig.show()
+

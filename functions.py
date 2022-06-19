@@ -11,6 +11,7 @@
 # -- repository: https://github.com/MoyMFO/myst_mfo_lab2                                                 -- #
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
+from matplotlib.pyplot import flag
 import numpy as np
 import pandas as pd
 
@@ -748,7 +749,11 @@ class PricingModelsOB(OrderBookMeasures):
             'bid_delta': (self.bid_price().values.flatten() - bid_calculated['mid_price'].values.flatten()),
             'ask': self.ask_price().values.flatten(),
             'ask_calculated': ask_calculated['mid_price'].values.flatten(),
-            'ask_delta': (self.ask_price().values.flatten() - ask_calculated['mid_price'].values.flatten())
+            'ask_delta': (self.ask_price().values.flatten() - ask_calculated['mid_price'].values.flatten()),
+            'c': c,
+            'spread':self.spread().values.flatten(),
+            'spread_calculated': 2*c,
+            'delta_spred': self.spread().values.flatten() - (2*c)
         }
 
         return pd.DataFrame(results, index=self.l_ts)
