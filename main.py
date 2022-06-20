@@ -15,10 +15,13 @@ from data import DataPreparation
 from functions import OrderBookMeasures, PricingModelsOB
 from visualizations import PlotsModelsOB
 
+
 data = DataPreparation()
 plot = PlotsModelsOB()
+# Preparation of data
 order_book_data = data.order_books_json_transformation("files/orderbooks_05jul21.json")
 order_book_measure = OrderBookMeasures(order_book_data)
+# Model class instance to make available methods
 model = PricingModelsOB(order_book_data)
 
 

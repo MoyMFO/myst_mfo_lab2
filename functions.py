@@ -683,20 +683,23 @@ class PricingModelsOB(OrderBookMeasures):
         ------
         Martingala count and percentages: DataFrame
         """
-
+        # Hidden function to count the martingala process inside of every time bucket
         def __martingala_counter(price_array: np.array) ->pd.DataFrame:
             return sum([price_array[i] == price_array[i + 1] 
                    for i in range(0, len(price_array) - 1)])
         
-        #chose_price
+        #Dictionary to check what price was select
         measure_price = {'mid_price': self.mid_price(), 'weighted_midprice':self.w_midprice_b()}
 
+        # Calling from the measures class the method according to selected one
         with_selected_price = measure_price[price_type]
         with_selected_price.index = self.l_ts
         with_selected_price = with_selected_price[price_type].resample(by, closed='right')
+        # Calculation of total and e_1 count using the hidden function in the resample
         total = (with_selected_price.count()-1)
         e1_count = with_selected_price.apply(__martingala_counter)
 
+        # Dictionary with results of the model
         selected_price_result = {
             'interval': np.arange(0, len(total+1)),
             'total': total,
@@ -728,20 +731,21 @@ class PricingModelsOB(OrderBookMeasures):
         ------
         bid and ask theorical prices: DataFrame
         """
-
+        # Calculation of \Delta p_t
         delta_pt = self.mid_price().diff(1).dropna()
+        # Calculation of \Delta p_{t-1}
         delta_pt_minius_1 = self.mid_price().shift(-1).diff(1).dropna()
-
+        # Put togheter in a matrix \Delta p_t and \Delta p_{t-1}
         df_deltas = pd.DataFrame({'delta_pt': delta_pt['mid_price'].iloc[:-1],
                                 'delta_pt_minus_1': delta_pt_minius_1['mid_price']})
-
+        # Calculation of gamma or the covariance between \Delta p_t and \Delta p_{t-1}
         gamma_1 = df_deltas.cov().iloc[0,1]
-
+        # Calculation of isolated from gamma_1
         c = np.sqrt(-gamma_1)
-
+        # Bid and Ask calculated
         bid_calculated = self.mid_price() + (-1)*c
         ask_calculated =  self.mid_price() + (1)*c
-
+        # Dictionary to collect all results from the model
         results = {
             'mid_price': self.mid_price().values.flatten(),
             'bid': self.bid_price().values.flatten(),

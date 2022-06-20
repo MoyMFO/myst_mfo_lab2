@@ -32,7 +32,6 @@ class PlotsModelsOB:
 
     @staticmethod
     def plot_apt_model_count(data: pd.DataFrame, price_type: str) -> go.Figure:
-
         """
         This method plots the calculation of count of the apt model.
 
@@ -58,7 +57,7 @@ class PlotsModelsOB:
         width=900,
         height=800)
 
-        # Title
+        # Title and make the bar plot in stack mode
         fig.update_layout(barmode='stack')
         fig.update_layout(title_text=f"{price_type}: Count of Martingala process",
                           legend=dict(orientation="h"))
@@ -70,7 +69,6 @@ class PlotsModelsOB:
 
     @staticmethod
     def plot_apt_model_percentage(data: pd.DataFrame, price_type: str) -> go.Figure:
-
         """
         This method plots the calculation of percentage of the apt model.
 
@@ -121,7 +119,7 @@ class PlotsModelsOB:
         ------
         Plots of all columns as subplots: Figure
         """
-
+        # Crafting of subplots to show the price which varies a little bit
         fig = make_subplots(
             rows=2, cols=2,
             subplot_titles=("Bid with Roll model", "Actual Bid",
@@ -144,7 +142,7 @@ class PlotsModelsOB:
                    line=dict(color='red', width=1), name='actual ask'),
                     row=2, col=2)
 
-        # Title
+        # Title and make the bar plot in stack mode
         fig.update_layout(height=800, width=980, title_text=f"Bid-Ask with Roll model",
                           legend=dict(orientation="h"))
 
