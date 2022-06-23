@@ -12,8 +12,8 @@
 # -- --------------------------------------------------------------------------------------------------- -- #
 """
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
+
 
 class PlotsModelsOB:
     """
@@ -61,6 +61,14 @@ class PlotsModelsOB:
         fig.update_layout(barmode='stack')
         fig.update_layout(title_text=f"{price_type}: Count of Martingala process",
                           legend=dict(orientation="h"))
+        
+        # xticks
+        fig.update_layout(
+            xaxis = dict(
+            tickmode = 'linear',
+            tick0 = 1,
+            dtick = 1))
+
         # Axis layout
         fig.update_xaxes(title_text="<b>Minute Bucket</b>")
         fig.update_yaxes(title_text="<b>Count of Martingala Process</b>")
@@ -99,6 +107,13 @@ class PlotsModelsOB:
         fig.update_layout(title_text=f"{price_type}: Propercentage of Martingala process",
                           legend=dict(orientation="h"))
 
+         # xticks
+        fig.update_layout(
+            xaxis = dict(
+            tickmode = 'linear',
+            tick0 = 1,
+            dtick = 1))
+
         # Axis layout
         fig.update_xaxes(title_text="<b>Minute Bucket</b>")
         fig.update_yaxes(title_text="<b>Percentage of Martingala Process</b>")
@@ -106,44 +121,40 @@ class PlotsModelsOB:
         return fig.show()
 
     @staticmethod
-    def plot_roll_model(data: pd.DataFrame) -> go.Figure:
+    def plot_roll_model(data: pd.DataFrame, serie_type: str='calculated') -> go.Figure:
         
         """
-        This method plots the calculation of bid and ask  with Roll model.
+        This method plots the calculation of bid and ask  with Roll model. In case 
+        a comparison against the actuals, it is possible to plot them.
 
         Parameters 
         ----------
         Required on calling:
             data: DataFrame with columns ['bid_calculated','bid','ask_calculated','ask'].
+            type: str 'calculated' or 'actual'. Default 'calculated'.
         Returns
         ------
         Plots of all columns as subplots: Figure
         """
+        options = {
+            'calculated': ['bid_calculated', 'ask_calculated', 'Bid-Ask with Roll model'],
+            'actual':     ['bid', 'ask', 'Bid-Ask Observed']
+        }
         # Crafting of subplots to show the price which varies a little bit
-        fig = make_subplots(
-            rows=2, cols=2,
-            subplot_titles=("Bid with Roll model", "Actual Bid",
-                            "Ask with Roll model", "Actual ask"))
+        fig = go.Figure()
 
-        fig.add_trace(go.Scatter(x=data.index, y=data['bid_calculated'],
-                   line=dict(color='magenta', width=1), name='bid calculated'),
-                    row=1, col=1)
+        fig.add_trace(go.Scatter(x=data.index, y=data[options[serie_type][0]],
+                   line=dict(color='blue', width=0.7), name=options[serie_type][0]))
 
-        fig.add_trace(go.Scatter(x=data.index, y=data['bid'], 
-                   line=dict(color='royalblue', width=1), name='actual bid'),
-                    row=1, col=2)
+        fig.add_trace(go.Scatter(x=data.index, y=data[options[serie_type][1]], 
+                   line=dict(color='firebrick', width=0.7), name=options[serie_type][1]))
 
-        fig.add_trace(go.Scatter(x=data.index, y=data['ask_calculated'],
-                   line=dict(color='brown', width=1), name='ask calculated'),
-                    row=2, col=1)
+        fig.add_trace(go.Scatter(x=data.index, y=data['mid_price'],
+                   line=dict(color='green', width=0.7), name='mid_price'),)
 
-
-        fig.add_trace(go.Scatter(x=data.index, y=data['ask'],
-                   line=dict(color='red', width=1), name='actual ask'),
-                    row=2, col=2)
 
         # Title and make the bar plot in stack mode
-        fig.update_layout(height=800, width=980, title_text=f"Bid-Ask with Roll model",
+        fig.update_layout(height=800, width=980, title_text=options[serie_type][2],
                           legend=dict(orientation="h"))
 
         # Axis layout
@@ -153,7 +164,7 @@ class PlotsModelsOB:
         return fig.show()
     
     @staticmethod
-    def plot_spread_comparison(data: pd.DataFrame) -> go.Figure:
+    def plot_spread_comparison_series(data: pd.DataFrame) -> go.Figure:
         """
         This method plots the calculated spread and the actual spread.
 
@@ -163,7 +174,7 @@ class PlotsModelsOB:
             data: DataFrame with columns ['spread_calculated',''spread'].
         Returns
         ------
-        Plots of comparison b/w spreads: Figure
+        Plots of comparison b/w spreads as series: Figure
         """
 
         fig = go.Figure()
@@ -184,3 +195,35 @@ class PlotsModelsOB:
 
         return fig.show()
 
+    @staticmethod
+    def plot_spread_comparison_bars(data: pd.DataFrame, by: str='2T') -> go.Figure:
+        """
+        This method plots the calculated spread and the actual spread.
+
+        Parameters 
+        ----------
+        Required on calling:
+            data: DataFrame with columns ['spread_calculated',''spread'].
+        Returns
+        ------
+        Plots of comparison b/w spreads in bars: Figure
+        """
+        data = data.resample(by).sum()
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Bar(x=data.index, y=data['spread_calculated'],
+                    marker_color='blue', name='spread calculated'))
+
+        fig.add_trace(go.Bar(x=data.index, y=data['spread'], 
+                    marker_color='firebrick', name='spread'))                
+
+        # Title
+        fig.update_layout(height=800, width=980, title_text=f"Spread Calculated vs Actual Spread",
+                        legend=dict(orientation="h"))
+
+        # Axis layout
+        fig.update_xaxes(title_text="<b>Time</b>")
+        fig.update_yaxes(title_text="<b>$</b>")
+
+        return fig.show()
