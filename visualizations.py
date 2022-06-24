@@ -159,7 +159,7 @@ class PlotsModelsOB:
 
         # Axis layout
         fig.update_xaxes(title_text="<b>Time</b>")
-        fig.update_yaxes(title_text="<b>$</b>")
+        fig.update_yaxes(title_text="<b>Currency ($)</b>")
 
         return fig.show()
     
@@ -191,7 +191,7 @@ class PlotsModelsOB:
 
         # Axis layout
         fig.update_xaxes(title_text="<b>Time</b>")
-        fig.update_yaxes(title_text="<b>$</b>")
+        fig.update_yaxes(title_text="<b>Currency ($)</b>")
 
         return fig.show()
 
@@ -224,6 +224,6 @@ class PlotsModelsOB:
 
         # Axis layout
         fig.update_xaxes(title_text="<b>Time</b>")
-        fig.update_yaxes(title_text="<b>$</b>")
+        fig.update_yaxes(title_text="<b>Currency ($)</b>")
 
         return fig.show()
